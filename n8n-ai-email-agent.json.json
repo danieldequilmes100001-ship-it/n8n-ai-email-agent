@@ -1,0 +1,172 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "id": "18fb0121-1835-4109-9272-ebc129a16f83",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -944,
+        -160
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i0DC8Ifk964smt1O",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=From: {{ $json.From }}\nSubject: {{ $json.Subject }}\n\n{{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are a helpful email assistant. Read the incoming email and write a short, friendly reply."
+        }
+      },
+      "id": "6a518056-3c44-4d91-a469-3e44563bb661",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -576,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "db6568a1-798e-4ced-a34f-8ee1f639c278",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -736,
+        64
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Gmail Trigger').item.json.threadId }}"
+      },
+      "id": "7b3d807b-d9f3-45ed-baf8-b8e6ccddd7a6",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -480,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "juanlopezjl100001@gmail.com",
+        "subject": "HOLA",
+        "message": "Hola como estas? las zapatillas tienen un precio de 150000 pesos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        -160
+      ],
+      "id": "b0327591-2ea1-4218-8ec1-1585f1639aa9",
+      "name": "Send a message",
+      "webhookId": "7bbd3143-9e8f-4910-8b73-b970bfdd5f11",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i0DC8Ifk964smt1O",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "be8f67ee-b079-4a07-9432-3aee508bcfd3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9a21290c2c75ad05b9164d08afa050b21fe5fdd2e1d98852f426dab6d38d441a"
+  },
+  "nodeGroups": [],
+  "id": "OnVTIlw5RMeYcIH0",
+  "tags": []
+}
